@@ -3,6 +3,8 @@ use bevy::prelude::*;
 #[cfg(feature = "debug")]
 use bevy_inspector_egui::WorldInspectorPlugin;
 
+use board_plugin::BoardPlugin;
+
 fn main() {
     let mut app = App::new();
     // Window setup
@@ -13,6 +15,7 @@ fn main() {
         ..Default::default()
     })
     // Bevy default plugins
+    .add_plugin(BoardPlugin)
     .add_plugins(DefaultPlugins);
     #[cfg(feature = "debug")]
     // Debug hierarchy inspector
