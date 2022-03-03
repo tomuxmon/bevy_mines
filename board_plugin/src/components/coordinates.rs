@@ -2,6 +2,8 @@ use bevy::prelude::Component;
 use std::fmt::{self, Display, Formatter};
 use std::ops::{Add, Sub};
 
+
+// TODO: investigate why Inspectable does not work.
 #[cfg_attr(feature = "debug", derive(bevy_inspector_egui::Inspectable))]
 #[derive(Debug, Default, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash, Component)]
 pub struct Coordinates {
