@@ -11,7 +11,7 @@ use resources::BoardPosition;
 use resources::TileSize;
 
 #[cfg(feature = "debug")]
-use bevy_inspector_egui::RegisterInspectable;
+use bevy_inspector_egui::InspectableRegistry;
 
 pub struct BoardPlugin;
 
@@ -19,11 +19,14 @@ impl Plugin for BoardPlugin {
     fn build(&self, app: &mut App) {
         #[cfg(feature = "debug")]
         {
+            let mut registry = app
+                .world
+                .get_resource_or_insert_with(InspectableRegistry::default);
             // registering custom component to be able to edit it in inspector
-            app.register_inspectable::<Coordinates>();
-            app.register_inspectable::<BombNeighbor>();
-            app.register_inspectable::<Bomb>();
-            app.register_inspectable::<Uncover>();
+            registry.register::<Coordinates>();
+            registry.register::<BombNeighbor>();
+            registry.register::<Bomb>();
+            registry.register::<Uncover>();
         }
 
         app.add_startup_system(Self::create_board);

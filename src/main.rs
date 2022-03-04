@@ -18,9 +18,11 @@ fn main() {
     // Bevy default plugins
     .add_plugin(BoardPlugin)
     .add_plugins(DefaultPlugins);
-    #[cfg(feature = "debug")]
+    
     // Debug hierarchy inspector
+    #[cfg(feature = "debug")]
     app.add_plugin(WorldInspectorPlugin::new());
+
     app.insert_resource(BoardOptions {
         map_size: (20, 20),
         bomb_count: 40,
