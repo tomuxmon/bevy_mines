@@ -1,11 +1,16 @@
+mod bounds;
 pub mod components;
 pub mod resources;
+mod systems;
 
 use bevy::log;
+use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
+use bounds::Bounds2;
 use components::*;
 use resources::tile::Tile;
 use resources::tile_map::TileMap;
+use resources::Board;
 use resources::BoardOptions;
 use resources::BoardPosition;
 use resources::TileSize;
@@ -29,7 +34,9 @@ impl Plugin for BoardPlugin {
             registry.register::<Uncover>();
         }
 
-        app.add_startup_system(Self::create_board);
+        app.add_startup_system(Self::create_board)
+            .add_system(systems::input::input_handling);
+
         log::info!("Loaded Board Plugin");
     }
 }
@@ -108,6 +115,15 @@ impl BoardPlugin {
             .insert(Name::new("Board"))
             .insert(Transform::from_translation(board_position))
             .insert(GlobalTransform::default());
+        // We add the main resource of the game, the board
+        commands.insert_resource(Board {
+            tile_map,
+            bounds: Bounds2 {
+                position: board_position.xy(),
+                size: board_size,
+            },
+            tile_size,
+        });
     }
 
     /// Computes a tile size that matches the window according to the tile map size
