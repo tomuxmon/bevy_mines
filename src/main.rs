@@ -17,10 +17,6 @@ pub enum AppState {
 
 fn main() {
     let mut app = App::new();
-    // Debug hierarchy inspector
-    #[cfg(feature = "debug")]
-    app.add_plugin(WorldInspectorPlugin::new());
-
     app.add_state(AppState::InGame)
         // Window setup
         .insert_resource(WindowDescriptor {
@@ -32,21 +28,24 @@ fn main() {
         // Board setup
         .insert_resource(BoardOptions {
             map_size: (20, 20),
-            bomb_count: 40,
+            bomb_count: 60,
             tile_padding: 3.0,
             safe_start: true,
             ..Default::default()
         })
         // Bevy default plugins
+        .add_plugins(DefaultPlugins)
+        // mine board plugin
         .add_plugin(BoardPlugin {
             running_state: AppState::InGame,
         })
         .add_system(state_handler)
-        .add_plugins(DefaultPlugins);
+        .add_startup_system(camera_setup);
 
-    // Startup system (cameras)
-    app.add_startup_system(camera_setup);
-    // Run the app
+    // Debug hierarchy inspector
+    #[cfg(feature = "debug")]
+    app.add_plugin(WorldInspectorPlugin::new());
+
     app.run();
 }
 
@@ -58,6 +57,7 @@ fn camera_setup(mut commands: Commands) {
 fn state_handler(mut state: ResMut<State<AppState>>, keys: Res<Input<KeyCode>>) {
     if state.current() == &AppState::Reseting {
         state.set(AppState::InGame).unwrap();
+        return;
     }
     if keys.just_pressed(KeyCode::Escape) {
         log::debug!("pause detected");
