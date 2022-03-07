@@ -18,7 +18,7 @@ fn main() {
     // Bevy default plugins
     .add_plugin(BoardPlugin)
     .add_plugins(DefaultPlugins);
-    
+
     // Debug hierarchy inspector
     #[cfg(feature = "debug")]
     app.add_plugin(WorldInspectorPlugin::new());
@@ -27,6 +27,7 @@ fn main() {
         map_size: (20, 20),
         bomb_count: 40,
         tile_padding: 3.0,
+        safe_start: true,
         ..Default::default()
     });
     // Startup system (cameras)
