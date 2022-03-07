@@ -10,6 +10,7 @@ use board_plugin::BoardPlugin;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     InGame,
+    Reseting,
     Pause,
     Out,
 }
@@ -55,6 +56,9 @@ fn camera_setup(mut commands: Commands) {
 }
 
 fn state_handler(mut state: ResMut<State<AppState>>, keys: Res<Input<KeyCode>>) {
+    if state.current() == &AppState::Reseting {
+        state.set(AppState::InGame).unwrap();
+    }
     if keys.just_pressed(KeyCode::Escape) {
         log::debug!("pause detected");
         if state.current() == &AppState::InGame {
@@ -75,9 +79,9 @@ fn state_handler(mut state: ResMut<State<AppState>>, keys: Res<Input<KeyCode>>) 
     }
     if keys.just_pressed(KeyCode::G) {
         log::debug!("loading detected");
-        if state.current() == &AppState::Out {
-            log::info!("loading game");
-            state.set(AppState::InGame).unwrap();
+        if state.current() == &AppState::Out || state.current() == &AppState::InGame {
+            log::info!("reseting game");
+            state.set(AppState::Reseting).unwrap();
         }
     }
 }
