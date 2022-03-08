@@ -1,5 +1,6 @@
 use crate::bounds::Bounds2;
 use crate::{Coordinates, TileMap};
+use bevy::log;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
 
@@ -9,6 +10,7 @@ pub struct Board {
     pub bounds: Bounds2,
     pub tile_size: f32,
     pub covered_tiles: HashMap<Coordinates, Entity>,
+    pub marked_tiles: Vec<Coordinates>,
     pub entity: Entity,
 }
 
@@ -33,12 +35,32 @@ impl Board {
 
     /// Retrieves a covered tile entity
     pub fn tile_to_uncover(&self, coords: &Coordinates) -> Option<&Entity> {
-        self.covered_tiles.get(coords)
+        if self.marked_tiles.contains(coords) {
+            None
+        } else {
+            self.covered_tiles.get(coords)
+        }
     }
 
     /// We try to uncover a tile, returning the entity
     pub fn try_uncover_tile(&mut self, coords: &Coordinates) -> Option<Entity> {
+        if self.marked_tiles.contains(coords) {
+            self.unmark_tile(coords)?;
+        }
         self.covered_tiles.remove(coords)
+    }
+
+    /// We try to mark or unmark a tile, returning the entity and if the tile is marked
+    pub fn try_toggle_mark(&mut self, coords: &Coordinates) -> Option<(Entity, bool)> {
+        let entity = *self.covered_tiles.get(coords)?;
+        let mark = if self.marked_tiles.contains(coords) {
+            self.unmark_tile(coords)?;
+            false
+        } else {
+            self.marked_tiles.push(*coords);
+            true
+        };
+        Some((entity, mark))
     }
 
     /// We retrieve the adjacent covered tile entities of `coord`
@@ -48,5 +70,22 @@ impl Board {
             .filter_map(|c| self.covered_tiles.get(&c))
             .copied()
             .collect()
+    }
+
+    /// Removes the `coords` from `marked_tiles`
+    fn unmark_tile(&mut self, coords: &Coordinates) -> Option<Coordinates> {
+        let pos = match self.marked_tiles.iter().position(|a| a == coords) {
+            None => {
+                log::error!("Failed to unmark tile at {}", coords);
+                return None;
+            }
+            Some(p) => p,
+        };
+        Some(self.marked_tiles.remove(pos))
+    }
+
+    /// Is the board complete
+    pub fn is_completed(&self) -> bool {
+        self.tile_map.bomb_count() as usize == self.covered_tiles.len()
     }
 }
