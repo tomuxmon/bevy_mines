@@ -71,14 +71,14 @@ fn state_handler(mut state: ResMut<State<AppState>>, keys: Res<Input<KeyCode>>) 
         }
     }
     if keys.just_pressed(KeyCode::C) {
-        log::debug!("clearing detected");
+        log::debug!("C detected");
         if state.current() == &AppState::InGame {
             log::info!("clearing game");
             state.set(AppState::Out).unwrap();
         }
     }
     if keys.just_pressed(KeyCode::G) {
-        log::debug!("loading detected");
+        log::debug!("G detected");
         if state.current() == &AppState::Out || state.current() == &AppState::InGame {
             log::info!("reseting game");
             state.set(AppState::Reseting).unwrap();
